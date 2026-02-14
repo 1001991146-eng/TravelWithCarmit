@@ -773,7 +773,7 @@
                     <!-- Active Question Screen -->
                     <div id="game-active" class="question-area">
                         <span class="badge" style="background-color: var(--slate-100); color: var(--slate-500); border:none; margin-bottom: 2rem;">
-                            שאלה <span id="q-number">1</span> מתוך 6
+                            שאלה <span id="q-number">1</span> מתוך 10
                         </span>
 
                         <div id="question-content">
@@ -782,11 +782,11 @@
                             <div class="answers-grid">
                                 <button class="answer-btn" onclick="handleAnswer('business')">
                                     <svg class="icon-lg" style="color: var(--blue-600);" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                                    <span class="answer-label">תייר עסקי</span>
+                                    <span class="answer-label">תיירות עסקית</span>
                                 </button>
                                 <button class="answer-btn leisure" onclick="handleAnswer('leisure')">
                                     <svg class="icon-lg" style="color: var(--amber-500);" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
-                                    <span class="answer-label">תייר נופש</span>
+                                    <span class="answer-label">תיירות לשם הנאה</span>
                                 </button>
                             </div>
                         </div>
@@ -808,7 +808,7 @@
                         <h2 style="font-size: 2rem; margin-bottom: 1rem;">כל הכבוד!</h2>
                         <p style="font-size: 1.25rem; color: var(--slate-600); margin-bottom: 2rem;">סיימת את הכשרת "תיירות עסקית".</p>
                         <div style="font-size: 4rem; font-weight: 900; color: var(--slate-900); margin-bottom: 0.5rem;" id="final-score">0</div>
-                        <p style="color: var(--slate-400); margin-bottom: 2rem;">נקודות</p>
+                        <p style="color: var(--slate-400); margin-bottom: 2rem;">מתוך 100 נקודות</p>
                         <button class="btn btn-primary" onclick="restartGame()">שחק שוב</button>
                     </div>
 
@@ -850,37 +850,61 @@
                 id: 1,
                 text: "המעסיק משלם את כל ההוצאות, התקציב כמעט בלתי מוגבל.",
                 type: 'business',
-                explanation: "נכון! בתיירות עסקית (ובמיוחד בסיורי תמריץ), הארגון משלם ולא הנוסע."
+                explanation: "בתיירות עסקית (ובמיוחד בסיורי תמריץ), הארגון משלם ולא הנוסע."
             },
             {
                 id: 2,
                 text: "השיקול המרכזי בבחירת הטיסה הוא המחיר הזול ביותר.",
                 type: 'leisure',
-                explanation: "טעות. זה מאפיין תייר נופש. התייר העסקי יעדיף נוחות ולוחות זמנים קצרים על פני מחיר."
+                explanation: "בתיירות לשם הנאה התקציב הוא אישי ומוגבל, ולכן המחיר הוא גורם מכריע בבחירה."
             },
             {
                 id: 3,
                 text: "הנסיעה מתוכננת לרוב לאמצע השבוע, ולא לסופי שבוע.",
                 type: 'business',
-                explanation: 'נכון! אנשי עסקים עובדים בימי חול. תיירי נופש מעדיפים סופ"ש וחגים.'
+                explanation: "אנשי עסקים עובדים בימי חול, בעוד תיירים לשם הנאה מעדיפים סופי שבוע וחגים."
             },
             {
                 id: 4,
                 text: "חשוב מאוד שיהיה אינטרנט מהיר ופינת עבודה בחדר.",
                 type: 'business',
-                explanation: "בדיוק. התייר העסקי צריך להישאר מחובר למשרד ולעולם."
+                explanation: "התייר העסקי חייב להישאר מחובר למשרד ולעבוד באופן שוטף גם מהמלון."
             },
             {
                 id: 5,
                 text: "הגורם העיקרי לנסיעה הוא ביקור קרובים או מנוחה בים.",
                 type: 'leisure',
-                explanation: "לא נכון. זוהי תיירות נופש (VFR או Leisure)."
+                explanation: "זוהי הגדרת הבסיס לתיירות לשם הנאה (VFR או Leisure) שמטרתה הנאה ופנאי."
             },
             {
                 id: 6,
                 text: "טס לעיתים קרובות, לעיתים אפילו לאותו יעד מספר פעמים.",
                 type: 'business',
-                explanation: "נכון. זוהי תיירות חוזרת ויציבה לאורך כל השנה."
+                explanation: "תיירות עסקית מתאפיינת בחזרתיות ויציבות לאורך כל השנה."
+            },
+            {
+                id: 7,
+                text: "החופשה מתמקדת ב'שלושת ה-S': שמש, חול וים (Sun, Sand, Sea).",
+                type: 'leisure',
+                explanation: "מונח זה (SSS) מתאר את חופשת ה'בטן-גב' הקלאסית והפופולרית ביותר בתיירות לשם הנאה."
+            },
+            {
+                id: 8,
+                text: "הנסיעה מתבצעת לרוב לבד או בקבוצה מצומצמת מאוד.",
+                type: 'business',
+                explanation: "איש העסקים נוסע לרוב בגפו לפגישות, בניגוד לנסיעה לשם הנאה שמתבצעת בדרך כלל עם משפחה או חברים."
+            },
+            {
+                id: 9,
+                text: "הנסיעה מושפעת מאוד מעונתיות (קיץ, חגים).",
+                type: 'leisure',
+                explanation: "תיירות לשם הנאה היא עונתית מאוד (High Season), לעומת תיירות עסקית שמתפזרת באופן קבוע לאורך השנה."
+            },
+            {
+                id: 10,
+                text: "מי שמקבל את ההחלטה על היעד והמועד הוא הארגון או המעסיק.",
+                type: 'business',
+                explanation: "בנסיעת עסקים, הצורך בנסיעה והמימון שלה מגיעים מהחברה, ולא מרצונו האישי של הנוסע."
             }
         ];
 
