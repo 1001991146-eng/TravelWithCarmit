@@ -1,399 +1,967 @@
-import React, { useState } from 'react';
-import { Plane, Briefcase, Users, Award, Globe, CheckCircle, XCircle, Coffee, DollarSign, Clock, MapPin, ArrowLeft } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Class - תיירות עסקית</title>
+    <style>
+        :root {
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-400: #94a3b8;
+            --slate-300: #cbd5e1;
+            --slate-100: #f1f5f9;
+            --slate-50: #f8fafc;
+            --amber-400: #fbbf24;
+            --amber-500: #f59e0b;
+            --amber-600: #d97706;
+            --blue-500: #3b82f6;
+            --blue-600: #2563eb;
+            --emerald-600: #059669;
+            --purple-600: #7c3aed;
+            --red-500: #ef4444;
+            --green-500: #22c55e;
+            --white: #ffffff;
+        }
 
-// --- DATA & CONTENT ---
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-const segmentsData = [
-  {
-    id: 'business-travel',
-    title: 'נסיעת עסקים אישית',
-    subtitle: 'Business Travel',
-    icon: <Briefcase size={40} />,
-    description: 'נסיעה של אדם בודד או קבוצה קטנה למטרת פגישות, חתימת חוזים או טיפול בלקוחות.',
-    characteristics: [
-      'זמן שהות קצר (לרוב 1-3 ימים)',
-      'רגישות גבוהה לזמן ("Time is Money")',
-      'דרישה למיקום מרכזי ונגיש',
-      'שימוש בשירותי משרד ותקשורת במלון'
-    ],
-    color: 'bg-blue-600'
-  },
-  {
-    id: 'incentive',
-    title: 'סיור תמריץ',
-    subtitle: 'Incentive Tour',
-    icon: <Award size={40} />,
-    description: "נסיעת צ'ופר המוענקת על ידי המעסיק לעובדים מצטיינים. המטרה היא גיבוש והנאה.",
-    characteristics: [
-      'תקציב גבוה מאוד (המעסיק משלם)',
-      'דגש על חוויה ייחודית ופינוק (WOW Effect)',
-      'פעילויות גיבוש ופנאי',
-      'מלונות יוקרה ברמה הגבוהה ביותר'
-    ],
-    color: 'bg-purple-600'
-  },
-  {
-    id: 'conference',
-    title: 'כנסים וועידות',
-    subtitle: 'Conferences & Congresses',
-    icon: <Users size={40} />,
-    description: 'התכנסות של אנשים בעלי עניין משותף (מקצועי, מדעי, לימודי) להחלפת דעות ומידע.',
-    characteristics: [
-      'מספר משתתפים גדול',
-      'הזמנה זמן רב מראש',
-      'צורך באולמות הרצאה וציוד טכני',
-      'שילוב של תערוכה מקצועית לצד הכנס'
-    ],
-    color: 'bg-emerald-600'
-  },
-  {
-    id: 'exhibition',
-    title: 'תערוכות וירידים',
-    subtitle: 'Exhibitions',
-    icon: <Globe size={40} />,
-    description: 'אירועים להצגת מוצרים ושירותים, שיווק וקידום מכירות.',
-    characteristics: [
-      'קהל יעד מקצועי או רחב',
-      'התמקדות בנטוורקינג (יצירת קשרים)',
-      'שטחי תצוגה נרחבים (מרכזי קונגרסים)',
-      'משך זמן קצוב ומרוכז'
-    ],
-    color: 'bg-amber-600'
-  }
-];
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--slate-50);
+            color: var(--slate-900);
+            line-height: 1.5;
+        }
 
-const gameQuestions = [
-  {
-    id: 1,
-    text: "המעסיק משלם את כל ההוצאות, התקציב כמעט בלתי מוגבל.",
-    type: 'business', // Specifically Incentive
-    explanation: "נכון! בתיירות עסקית (ובמיוחד בסיורי תמריץ), הארגון משלם ולא הנוסע."
-  },
-  {
-    id: 2,
-    text: "השיקול המרכזי בבחירת הטיסה הוא המחיר הזול ביותר.",
-    type: 'leisure',
-    explanation: "טעות. זה מאפיין תייר נופש. התייר העסקי יעדיף נוחות ולוחות זמנים קצרים על פני מחיר."
-  },
-  {
-    id: 3,
-    text: "הנסיעה מתוכננת לרוב לאמצע השבוע, ולא לסופי שבוע.",
-    type: 'business',
-    explanation: 'נכון! אנשי עסקים עובדים בימי חול. תיירי נופש מעדיפים סופ"ש וחגים.'
-  },
-  {
-    id: 4,
-    text: "חשוב מאוד שיהיה אינטרנט מהיר ופינת עבודה בחדר.",
-    type: 'business',
-    explanation: "בדיוק. התייר העסקי צריך להישאר מחובר למשרד ולעולם."
-  },
-  {
-    id: 5,
-    text: "הגורם העיקרי לנסיעה הוא ביקור קרובים או מנוחה בים.",
-    type: 'leisure',
-    explanation: "לא נכון. זוהי תיירות נופש (VFR או Leisure)."
-  },
-  {
-    id: 6,
-    text: "טס לעיתים קרובות, לעיתים אפילו לאותו יעד מספר פעמים.",
-    type: 'business',
-    explanation: "נכון. זוהי תיירות חוזרת ויציבה לאורך כל השנה."
-  }
-];
+        /* --- Header --- */
+        header {
+            background-color: var(--slate-900);
+            color: var(--white);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
 
-// --- COMPONENTS ---
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
 
-const Header = ({ setPage }) => (
-  <header className="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
-    <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-      <div 
-        className="flex items-center space-x-2 space-x-reverse cursor-pointer hover:opacity-80 transition"
-        onClick={() => setPage('home')}
-      >
-        <Plane className="text-amber-400 transform rotate-[-45deg]" size={28} />
-        <div>
-          <h1 className="text-xl font-bold tracking-wider">Business Class</h1>
-          <p className="text-xs text-slate-400">תיירות עסקית ו-MICE</p>
-        </div>
-      </div>
-      <nav className="hidden md:flex space-x-6 space-x-reverse">
-        <button onClick={() => setPage('home')} className="hover:text-amber-400 transition">ראשי</button>
-        <button onClick={() => setPage('segments')} className="hover:text-amber-400 transition">פלחי השוק</button>
-        <button onClick={() => setPage('game')} className="px-4 py-1 bg-amber-500 text-slate-900 rounded-full font-bold hover:bg-amber-400 transition">שחקו עכשיו</button>
-      </nav>
-      {/* Mobile Menu Icon Placeholder */}
-      <div className="md:hidden text-amber-400">☰</div>
-    </div>
-  </header>
-);
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-const Hero = ({ setPage }) => (
-  <div className="relative bg-slate-800 text-white min-h-[80vh] flex items-center overflow-hidden">
-    {/* Abstract Background Design */}
-    <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-    <div className="absolute top-0 left-0 w-96 h-96 bg-amber-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-    
-    <div className="container mx-auto px-4 relative z-10 flex flex-col md:flex-row items-center">
-      <div className="md:w-1/2 text-right mb-10 md:mb-0">
-        <div className="inline-block px-3 py-1 mb-4 border border-amber-400 text-amber-400 rounded-full text-sm font-semibold tracking-wide">
-          יחידת לימוד בתיירות
-        </div>
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-          איש העולם <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-600">
-            הגדול
-          </span>
-        </h1>
-        <p className="text-xl text-slate-300 mb-8 max-w-lg leading-relaxed">
-          התייר העסקי הוא הלקוח המבוקש ביותר בעולם התיירות. הוא מתוחכם, בעל תקציב גבוה, ודורש שירות ללא פשרות. 
-          בואו להכיר את עולם ה-MICE.
-        </p>
-        <div className="flex space-x-4 space-x-reverse">
-          <button 
-            onClick={() => setPage('segments')}
-            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-500 rounded-lg font-bold hover:shadow-lg hover:shadow-blue-500/30 transition transform hover:-translate-y-1 flex items-center"
-          >
-            הכר את הפלחים <ArrowLeft className="mr-2" size={20} />
-          </button>
-          <button 
-            onClick={() => setPage('game')}
-            className="px-8 py-3 border border-slate-500 rounded-lg font-bold hover:bg-slate-700 transition"
-          >
-            בחן את עצמך
-          </button>
-        </div>
-      </div>
-      
-      {/* Visual Representation of "Global Man" */}
-      <div className="md:w-1/2 flex justify-center">
-        <div className="relative w-80 h-80 md:w-[500px] md:h-[500px] bg-gradient-to-br from-slate-700 to-slate-900 rounded-full flex items-center justify-center border-4 border-slate-600 shadow-2xl">
-          <Globe className="text-slate-500/20 absolute w-full h-full p-10 animate-spin-slow" />
-          <div className="relative grid grid-cols-2 gap-4 p-8">
-            <div className="bg-slate-800 p-4 rounded-xl shadow-lg border-t-4 border-amber-400 flex flex-col items-center">
-              <DollarSign className="text-green-400 mb-2" />
-              <span className="text-sm font-bold">תקציב גבוה</span>
-            </div>
-            <div className="bg-slate-800 p-4 rounded-xl shadow-lg border-t-4 border-blue-400 flex flex-col items-center">
-              <Clock className="text-blue-400 mb-2" />
-              <span className="text-sm font-bold">Time is Money</span>
-            </div>
-            <div className="bg-slate-800 p-4 rounded-xl shadow-lg border-t-4 border-purple-400 flex flex-col items-center">
-              <Coffee className="text-purple-400 mb-2" />
-              <span className="text-sm font-bold">רמת שירות</span>
-            </div>
-            <div className="bg-slate-800 p-4 rounded-xl shadow-lg border-t-4 border-red-400 flex flex-col items-center">
-              <MapPin className="text-red-400 mb-2" />
-              <span className="text-sm font-bold">מיקום מרכזי</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
 
-const SegmentsPage = () => (
-  <div className="bg-slate-50 min-h-screen py-16">
-    <div className="container mx-auto px-4">
-      <div className="text-center mb-16">
-        <h2 className="text-4xl font-bold text-slate-900 mb-4">עולם התיירות העסקית</h2>
-        <p className="text-slate-600 max-w-2xl mx-auto text-lg">
-          שוק התיירות העסקית (MICE) מתחלק למספר תתי-פלחים, לכל אחד מאפיינים וצרכים ייחודיים.
-        </p>
-      </div>
+        .logo svg {
+            color: var(--amber-400);
+            transform: rotate(-45deg);
+        }
 
-      <div className="grid md:grid-cols-2 gap-8">
-        {segmentsData.map((segment) => (
-          <div key={segment.id} className="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300 group">
-            <div className={`h-3 ${segment.color}`}></div>
-            <div className="p-8">
-              <div className="flex justify-between items-start mb-6">
-                <div className={`p-4 rounded-full ${segment.color} bg-opacity-10 text-${segment.color.split('-')[1]}-600`}>
-                  {React.cloneElement(segment.icon, { className: `text-${segment.color.split('-')[1]}-600` })}
+        .nav-menu {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--slate-300);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: color 0.3s;
+            font-family: inherit;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            color: var(--amber-400);
+        }
+
+        .cta-btn {
+            background-color: var(--amber-500);
+            color: var(--slate-900);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: bold;
+        }
+
+        .cta-btn:hover {
+            background-color: var(--amber-400);
+        }
+
+        /* --- Sections --- */
+        .section {
+            display: none; /* JS toggles this */
+            min-height: calc(100vh - 80px);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Hero Section --- */
+        #home {
+            background-color: var(--slate-800);
+            color: var(--white);
+            display: flex; /* Override for initial state logic handled in JS, but flex needed for layout */
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .hero-layout {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+            .hero-text {
+                width: 50%;
+                text-align: right;
+            }
+            .hero-visual {
+                width: 50%;
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border: 1px solid var(--amber-400);
+            color: var(--amber-400);
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            h1 { font-size: 4.5rem; }
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, var(--amber-400), var(--amber-600));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 1.25rem;
+            color: var(--slate-300);
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            border: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--blue-600), var(--blue-500));
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--slate-400);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Hero Visual */
+        .circle-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, var(--slate-700), var(--slate-900));
+            border-radius: 50%;
+            border: 4px solid var(--slate-600);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            margin-top: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .circle-container {
+                width: 450px;
+                height: 450px;
+                margin-top: 0;
+            }
+        }
+
+        .grid-icons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            width: 100%;
+            padding: 2rem;
+        }
+
+        .icon-card {
+            background: var(--slate-800);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            border-top: 4px solid;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .icon-label {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* --- Segments Section --- */
+        #segments {
+            background-color: var(--slate-50);
+            padding: 4rem 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .cards-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-top-bar {
+            height: 0.75rem;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            padding: 1rem;
+            border-radius: 50%;
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .card-bg-text {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--slate-300);
+            opacity: 0.3;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--slate-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .features-box {
+            background-color: var(--slate-50);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .features-list {
+            list-style: none;
+            margin-top: 0.5rem;
+        }
+
+        .features-list li {
+            display: flex;
+            align-items: start;
+            font-size: 0.875rem;
+            color: var(--slate-600);
+            margin-bottom: 0.5rem;
+        }
+
+        .bullet {
+            width: 6px;
+            height: 6px;
+            background-color: var(--slate-400);
+            border-radius: 50%;
+            margin-top: 8px;
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+
+        /* --- Game Section --- */
+        #game {
+            background-color: var(--slate-900);
+            color: white;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        #game.active {
+            display: flex; /* Override block for flex layout */
+        }
+
+        .game-pattern {
+            position: absolute;
+            inset: 0;
+            opacity: 0.1;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .game-container {
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .score-board {
+            background-color: var(--slate-800);
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+            border: 1px solid var(--slate-700);
+        }
+
+        .game-card {
+            background: white;
+            color: var(--slate-900);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: var(--slate-100);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--blue-600);
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .question-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 2.5rem;
+            line-height: 1.4;
+        }
+
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        @media (min-width: 768px) {
+            .answers-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .answer-btn {
+            background-color: var(--slate-50);
+            border: 2px solid var(--slate-200);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .answer-btn:hover {
+            border-color: var(--blue-500);
+            background-color: #eff6ff;
+        }
+
+        .answer-btn.leisure:hover {
+            border-color: var(--amber-500);
+            background-color: #fffbeb;
+        }
+
+        .answer-label {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* Feedback State */
+        .feedback {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            animation: zoomIn 0.3s;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .feedback-icon {
+            padding: 1rem;
+            border-radius: 50%;
+            margin-bottom: 1.5rem;
+        }
+
+        .feedback.correct .feedback-icon {
+            background-color: #dcfce7;
+            color: var(--green-500);
+        }
+        .feedback.correct h3 { color: var(--green-500); }
+
+        .feedback.wrong .feedback-icon {
+            background-color: #fee2e2;
+            color: var(--red-500);
+        }
+        .feedback.wrong h3 { color: var(--red-500); }
+
+        .feedback-explanation {
+            font-size: 1.1rem;
+            color: var(--slate-600);
+            margin-bottom: 2rem;
+            max-width: 500px;
+        }
+
+        /* End Screen */
+        .end-screen {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Utilities */
+        .hidden { display: none !important; }
+        .block { display: block !important; }
+        .flex { display: flex !important; }
+
+        /* Icon sizing utilities */
+        svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+        .icon-lg { width: 40px; height: 40px; }
+        .icon-xl { width: 80px; height: 80px; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-content">
+            <div class="logo" onclick="navigateTo('home')">
+                <svg viewBox="0 0 24 24"><path d="M2 12h20M2 12l5-5m-5 5l5 5"/></svg> <!-- Placeholder for Plane logic visual below -->
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <svg viewBox="0 0 24 24" style="color:var(--amber-400); transform: rotate(-45deg); width: 28px; height: 28px;">
+                        <path d="M2 12h20"/><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M12 2v5"/><path d="M4.93 19.07 7.76 16.24"/><path d="M16.24 7.76l2.83-2.83"/>
+                        <!-- Simple Plane-like icon -->
+                        <path d="M2 12h20 M12 2l10 10-10 10" /> 
+                    </svg>
+                    <div>
+                        <h1 style="font-size: 1.25rem; margin:0;">Business Class</h1>
+                        <p style="font-size: 0.75rem; color: var(--slate-400); margin:0;">תיירות עסקית ו-MICE</p>
+                    </div>
                 </div>
-                <span className="text-5xl font-black text-slate-100 group-hover:text-slate-200 transition-colors select-none">
-                  {segment.id.slice(0, 2).toUpperCase()}
-                </span>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-1">{segment.title}</h3>
-              <h4 className="text-sm text-slate-500 font-medium mb-4 uppercase tracking-wider">{segment.subtitle}</h4>
-              <p className="text-slate-600 mb-6 leading-relaxed">
-                {segment.description}
-              </p>
-              
-              <div className="bg-slate-50 p-4 rounded-lg">
-                <h5 className="font-bold text-slate-800 mb-3 flex items-center">
-                  <CheckCircle size={16} className="ml-2 text-green-500" /> מאפיינים בולטים:
-                </h5>
-                <ul className="space-y-2">
-                  {segment.characteristics.map((char, idx) => (
-                    <li key={idx} className="flex items-start text-sm text-slate-600">
-                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full mt-1.5 ml-2 flex-shrink-0"></span>
-                      {char}
-                    </li>
-                  ))}
-                </ul>
-              </div>
             </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-);
-
-const Game = () => {
-  const [currentQIndex, setCurrentQIndex] = useState(0);
-  const [score, setScore] = useState(0);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
-  const [gameFinished, setGameFinished] = useState(false);
-
-  const handleAnswer = (type) => {
-    const isAnswerCorrect = gameQuestions[currentQIndex].type === type;
-    setIsCorrect(isAnswerCorrect);
-    if (isAnswerCorrect) setScore(score + 10);
-    setShowFeedback(true);
-  };
-
-  const nextQuestion = () => {
-    setShowFeedback(false);
-    if (currentQIndex + 1 < gameQuestions.length) {
-      setCurrentQIndex(currentQIndex + 1);
-    } else {
-      setGameFinished(true);
-    }
-  };
-
-  const restartGame = () => {
-    setCurrentQIndex(0);
-    setScore(0);
-    setGameFinished(false);
-    setShowFeedback(false);
-  };
-
-  if (gameFinished) {
-    return (
-      <div className="bg-slate-900 min-h-screen flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl p-8 md:p-12 max-w-2xl w-full text-center shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-amber-400 to-amber-600"></div>
-          <Award size={80} className="mx-auto text-amber-500 mb-6" />
-          <h2 className="text-4xl font-bold text-slate-800 mb-4">כל הכבוד!</h2>
-          <p className="text-xl text-slate-600 mb-8">סיימת את הכשרת "תיירות עסקית".</p>
-          <div className="text-6xl font-black text-slate-900 mb-2">{score}</div>
-          <p className="text-slate-500 mb-8">מתוך {gameQuestions.length * 10} נקודות אפשריות</p>
-          <button 
-            onClick={restartGame}
-            className="bg-slate-900 text-white px-8 py-3 rounded-full font-bold hover:bg-slate-800 transition shadow-lg transform hover:-translate-y-1"
-          >
-            שחק שוב
-          </button>
+            <nav class="nav-menu">
+                <button class="nav-btn active" onclick="navigateTo('home')" id="nav-home">ראשי</button>
+                <button class="nav-btn" onclick="navigateTo('segments')" id="nav-segments">פלחי השוק</button>
+                <button class="cta-btn nav-btn" onclick="navigateTo('game')" id="nav-game" style="color: var(--slate-900);">שחקו עכשיו</button>
+            </nav>
         </div>
-      </div>
-    );
-  }
+    </header>
 
-  return (
-    <div className="bg-slate-900 min-h-screen flex flex-col items-center justify-center p-4 relative">
-        {/* Background elements */}
-        <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '30px 30px'}}></div>
-
-        <div className="max-w-3xl w-full">
-            <div className="flex justify-between items-center text-white mb-8">
-                <div>
-                    <h2 className="text-2xl font-bold text-amber-400">דרכון לעסקים</h2>
-                    <p className="text-slate-400">זיהוי מאפייני התייר</p>
-                </div>
-                <div className="bg-slate-800 px-6 py-2 rounded-full border border-slate-700">
-                    <span className="text-slate-400 ml-2">ניקוד:</span>
-                    <span className="text-xl font-bold text-amber-400">{score}</span>
-                </div>
-            </div>
-
-            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden min-h-[400px] flex flex-col relative">
-                {/* Progress Bar */}
-                <div className="w-full bg-slate-100 h-2">
-                    <div 
-                        className="bg-blue-600 h-2 transition-all duration-500" 
-                        style={{width: `${((currentQIndex + 1) / gameQuestions.length) * 100}%`}}
-                    ></div>
+    <main>
+        <!-- HOME SECTION -->
+        <section id="home" class="section active">
+            <div class="container hero-layout">
+                <div class="hero-text">
+                    <div class="badge">יחידת לימוד בתיירות</div>
+                    <h1>
+                        איש העולם <br>
+                        <span class="gradient-text">הגדול</span>
+                    </h1>
+                    <p class="hero-desc">
+                        התייר העסקי הוא הלקוח המבוקש ביותר בעולם התיירות. הוא מתוחכם, בעל תקציב גבוה, ודורש שירות ללא פשרות. 
+                        בואו להכיר את עולם ה-MICE.
+                    </p>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="navigateTo('segments')">הכר את הפלחים</button>
+                        <button class="btn btn-outline" onclick="navigateTo('game')">בחן את עצמך</button>
+                    </div>
                 </div>
 
-                <div className="flex-grow flex flex-col items-center justify-center p-8 md:p-12 text-center">
-                    <span className="inline-block bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-sm font-bold mb-6">
-                        שאלה {currentQIndex + 1} מתוך {gameQuestions.length}
-                    </span>
-                    
-                    {!showFeedback ? (
-                        <>
-                            <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-10 leading-relaxed">
-                                "{gameQuestions[currentQIndex].text}"
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-xl">
-                                <button 
-                                    onClick={() => handleAnswer('business')}
-                                    className="group relative bg-slate-50 border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 p-6 rounded-2xl transition-all duration-300 flex flex-col items-center"
-                                >
-                                    <Briefcase className="text-slate-400 group-hover:text-blue-500 mb-3 transition-colors" size={32} />
-                                    <span className="text-lg font-bold text-slate-700 group-hover:text-blue-700">תייר עסקי</span>
-                                </button>
-                                <button 
-                                    onClick={() => handleAnswer('leisure')}
-                                    className="group relative bg-slate-50 border-2 border-slate-200 hover:border-orange-500 hover:bg-orange-50 p-6 rounded-2xl transition-all duration-300 flex flex-col items-center"
-                                >
-                                    <Coffee className="text-slate-400 group-hover:text-orange-500 mb-3 transition-colors" size={32} />
-                                    <span className="text-lg font-bold text-slate-700 group-hover:text-orange-700">תייר נופש</span>
-                                </button>
+                <div class="hero-visual">
+                    <div class="circle-container">
+                        <!-- Abstract Globe Icon Background -->
+                        <svg viewBox="0 0 24 24" style="position:absolute; width: 100%; height: 100%; color: rgba(255,255,255,0.05); padding: 40px;">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                        
+                        <div class="grid-icons">
+                            <div class="icon-card" style="border-color: var(--green-500);">
+                                <svg style="color: var(--green-500);" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                                <span class="icon-label">תקציב גבוה</span>
                             </div>
-                        </>
-                    ) : (
-                        <div className="animate-in fade-in zoom-in duration-300">
-                            <div className={`mb-6 inline-flex p-4 rounded-full ${isCorrect ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                                {isCorrect ? <CheckCircle size={48} /> : <XCircle size={48} />}
+                            <div class="icon-card" style="border-color: var(--blue-500);">
+                                <svg style="color: var(--blue-500);" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                <span class="icon-label">Time is Money</span>
                             </div>
-                            <h3 className={`text-3xl font-bold mb-4 ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
-                                {isCorrect ? 'תשובה נכונה!' : 'לא בדיוק...'}
-                            </h3>
-                            <p className="text-xl text-slate-600 mb-8 max-w-lg mx-auto">
-                                {gameQuestions[currentQIndex].explanation}
-                            </p>
-                            <button 
-                                onClick={nextQuestion}
-                                className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg flex items-center mx-auto"
-                            >
-                                {currentQIndex + 1 === gameQuestions.length ? 'סיים משחק' : 'לשאלה הבאה'} 
-                                <ArrowLeft className="mr-2" size={20} />
-                            </button>
+                            <div class="icon-card" style="border-color: var(--purple-600);">
+                                <svg style="color: var(--purple-600);" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+                                <span class="icon-label">שירות VIP</span>
+                            </div>
+                            <div class="icon-card" style="border-color: var(--red-500);">
+                                <svg style="color: var(--red-500);" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                <span class="icon-label">מיקום מרכזי</span>
+                            </div>
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-  );
-};
+        </section>
 
-const Footer = () => (
-    <footer className="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-center">
-        <p>© פותח עבור מגמת תיירות | יחידת הוראה MICE</p>
-        <p className="text-sm mt-2">פותח במסגרת השתלמות טכנו-פדגוגית</p>
-    </footer>
-);
+        <!-- SEGMENTS SECTION -->
+        <section id="segments" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>עולם התיירות העסקית</h2>
+                    <p style="color: var(--slate-600);">שוק ה-MICE מתחלק למספר תתי-פלחים עם מאפיינים ייחודיים</p>
+                </div>
 
-export default function App() {
-  const [page, setPage] = useState('home');
+                <div class="cards-grid">
+                    <!-- Business Travel -->
+                    <div class="card">
+                        <div class="card-top-bar" style="background-color: var(--blue-600);"></div>
+                        <div class="card-content">
+                            <div class="card-header">
+                                <div class="card-icon"><svg class="icon-lg" style="color: var(--blue-600);" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></div>
+                                <span class="card-bg-text">BT</span>
+                            </div>
+                            <h3>נסיעת עסקים אישית</h3>
+                            <span class="subtitle">Business Travel</span>
+                            <p style="color: var(--slate-600);">נסיעה של אדם בודד או קבוצה קטנה למטרת פגישות, חתימת חוזים או טיפול בלקוחות.</p>
+                            <div class="features-box">
+                                <h5 style="font-weight: bold;">מאפיינים:</h5>
+                                <ul class="features-list">
+                                    <li><span class="bullet"></span>זמן שהות קצר (1-3 ימים)</li>
+                                    <li><span class="bullet"></span>רגישות לזמן</li>
+                                    <li><span class="bullet"></span>דרישה למיקום מרכזי</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 
-  return (
-    <div className="font-sans text-right" dir="rtl">
-      <Header setPage={setPage} />
-      
-      <main>
-        {page === 'home' && <Hero setPage={setPage} />}
-        {page === 'segments' && <SegmentsPage />}
-        {page === 'game' && <Game />}
-      </main>
+                    <!-- Incentive -->
+                    <div class="card">
+                        <div class="card-top-bar" style="background-color: var(--purple-600);"></div>
+                        <div class="card-content">
+                            <div class="card-header">
+                                <div class="card-icon"><svg class="icon-lg" style="color: var(--purple-600);" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg></div>
+                                <span class="card-bg-text">IN</span>
+                            </div>
+                            <h3>סיור תמריץ</h3>
+                            <span class="subtitle">Incentive Tour</span>
+                            <p style="color: var(--slate-600);">נסיעת צ'ופר המוענקת על ידי המעסיק לעובדים מצטיינים. המטרה היא גיבוש והנאה.</p>
+                            <div class="features-box">
+                                <h5 style="font-weight: bold;">מאפיינים:</h5>
+                                <ul class="features-list">
+                                    <li><span class="bullet"></span>תקציב גבוה (המעסיק משלם)</li>
+                                    <li><span class="bullet"></span>דגש על חוויה (WOW Effect)</li>
+                                    <li><span class="bullet"></span>מלונות יוקרה</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 
-      <Footer />
-    </div>
-  );
-}
+                    <!-- Conference -->
+                    <div class="card">
+                        <div class="card-top-bar" style="background-color: var(--emerald-600);"></div>
+                        <div class="card-content">
+                            <div class="card-header">
+                                <div class="card-icon"><svg class="icon-lg" style="color: var(--emerald-600);" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+                                <span class="card-bg-text">CO</span>
+                            </div>
+                            <h3>כנסים וועידות</h3>
+                            <span class="subtitle">Conferences</span>
+                            <p style="color: var(--slate-600);">התכנסות של אנשים בעלי עניין משותף להחלפת דעות ומידע.</p>
+                            <div class="features-box">
+                                <h5 style="font-weight: bold;">מאפיינים:</h5>
+                                <ul class="features-list">
+                                    <li><span class="bullet"></span>מספר משתתפים גדול</li>
+                                    <li><span class="bullet"></span>הזמנה זמן רב מראש</li>
+                                    <li><span class="bullet"></span>צורך באולמות וציוד טכני</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Exhibitions -->
+                    <div class="card">
+                        <div class="card-top-bar" style="background-color: var(--amber-600);"></div>
+                        <div class="card-content">
+                            <div class="card-header">
+                                <div class="card-icon"><svg class="icon-lg" style="color: var(--amber-600);" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>
+                                <span class="card-bg-text">EX</span>
+                            </div>
+                            <h3>תערוכות וירידים</h3>
+                            <span class="subtitle">Exhibitions</span>
+                            <p style="color: var(--slate-600);">אירועים להצגת מוצרים ושירותים, שיווק וקידום מכירות.</p>
+                            <div class="features-box">
+                                <h5 style="font-weight: bold;">מאפיינים:</h5>
+                                <ul class="features-list">
+                                    <li><span class="bullet"></span>קהל יעד מקצועי</li>
+                                    <li><span class="bullet"></span>התמקדות בנטוורקינג</li>
+                                    <li><span class="bullet"></span>שטחי תצוגה נרחבים</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GAME SECTION -->
+        <section id="game" class="section">
+            <div class="game-pattern"></div>
+            <div class="game-container">
+                <div class="game-header">
+                    <div>
+                        <h2 style="font-size: 1.5rem; color: var(--amber-400);">דרכון לעסקים</h2>
+                        <p style="color: var(--slate-400);">זיהוי מאפייני התייר</p>
+                    </div>
+                    <div class="score-board">
+                        <span style="color: var(--slate-400);">ניקוד:</span>
+                        <span id="score-display" style="color: var(--amber-400); font-weight: bold; font-size: 1.25rem;">0</span>
+                    </div>
+                </div>
+
+                <div class="game-card">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-bar"></div>
+                    </div>
+
+                    <!-- Active Question Screen -->
+                    <div id="game-active" class="question-area">
+                        <span class="badge" style="background-color: var(--slate-100); color: var(--slate-500); border:none; margin-bottom: 2rem;">
+                            שאלה <span id="q-number">1</span> מתוך 6
+                        </span>
+
+                        <div id="question-content">
+                            <h3 class="question-text" id="question-text">השאלה תופיע כאן...</h3>
+                            
+                            <div class="answers-grid">
+                                <button class="answer-btn" onclick="handleAnswer('business')">
+                                    <svg class="icon-lg" style="color: var(--blue-600);" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                                    <span class="answer-label">תייר עסקי</span>
+                                </button>
+                                <button class="answer-btn leisure" onclick="handleAnswer('leisure')">
+                                    <svg class="icon-lg" style="color: var(--amber-500);" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+                                    <span class="answer-label">תייר נופש</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Feedback Screen (Hidden Initially) -->
+                        <div id="feedback" class="feedback">
+                            <div class="feedback-icon">
+                                <svg class="icon-xl" id="feedback-icon-svg" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <h3 id="feedback-title" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;">תשובה נכונה!</h3>
+                            <p id="feedback-text" class="feedback-explanation">ההסבר יופיע כאן...</p>
+                            <button class="btn btn-primary" onclick="nextQuestion()">המשך <svg viewBox="0 0 24 24" style="display:inline; vertical-align:middle; width:18px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
+                        </div>
+                    </div>
+
+                    <!-- End Game Screen (Hidden Initially) -->
+                    <div id="game-end" class="question-area hidden">
+                        <svg class="icon-xl" style="color: var(--amber-500); margin-bottom: 1.5rem;" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                        <h2 style="font-size: 2rem; margin-bottom: 1rem;">כל הכבוד!</h2>
+                        <p style="font-size: 1.25rem; color: var(--slate-600); margin-bottom: 2rem;">סיימת את הכשרת "תיירות עסקית".</p>
+                        <div style="font-size: 4rem; font-weight: 900; color: var(--slate-900); margin-bottom: 0.5rem;" id="final-score">0</div>
+                        <p style="color: var(--slate-400); margin-bottom: 2rem;">נקודות</p>
+                        <button class="btn btn-primary" onclick="restartGame()">שחק שוב</button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- Navigation Logic ---
+        function navigateTo(pageId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(el => {
+                el.classList.remove('active');
+                if (el.id === 'home' || el.id === 'segments') el.style.display = 'none'; // reset display
+                if (el.id === 'game') el.classList.remove('flex'); 
+            });
+
+            // Show selected section
+            const target = document.getElementById(pageId);
+            if(pageId === 'game') {
+                target.classList.add('active'); // CSS handles display:flex via active class for game? No need specific helper
+            } else {
+                target.style.display = 'block'; // Or flex for home
+                if(pageId === 'home') target.style.display = 'flex';
+            }
+            target.classList.add('active');
+            
+            // Update Nav Buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            const navBtn = document.getElementById('nav-' + pageId);
+            if(navBtn) navBtn.classList.add('active');
+        }
+
+        // --- Game Logic ---
+        const questions = [
+            {
+                id: 1,
+                text: "המעסיק משלם את כל ההוצאות, התקציב כמעט בלתי מוגבל.",
+                type: 'business',
+                explanation: "נכון! בתיירות עסקית (ובמיוחד בסיורי תמריץ), הארגון משלם ולא הנוסע."
+            },
+            {
+                id: 2,
+                text: "השיקול המרכזי בבחירת הטיסה הוא המחיר הזול ביותר.",
+                type: 'leisure',
+                explanation: "טעות. זה מאפיין תייר נופש. התייר העסקי יעדיף נוחות ולוחות זמנים קצרים על פני מחיר."
+            },
+            {
+                id: 3,
+                text: "הנסיעה מתוכננת לרוב לאמצע השבוע, ולא לסופי שבוע.",
+                type: 'business',
+                explanation: 'נכון! אנשי עסקים עובדים בימי חול. תיירי נופש מעדיפים סופ"ש וחגים.'
+            },
+            {
+                id: 4,
+                text: "חשוב מאוד שיהיה אינטרנט מהיר ופינת עבודה בחדר.",
+                type: 'business',
+                explanation: "בדיוק. התייר העסקי צריך להישאר מחובר למשרד ולעולם."
+            },
+            {
+                id: 5,
+                text: "הגורם העיקרי לנסיעה הוא ביקור קרובים או מנוחה בים.",
+                type: 'leisure',
+                explanation: "לא נכון. זוהי תיירות נופש (VFR או Leisure)."
+            },
+            {
+                id: 6,
+                text: "טס לעיתים קרובות, לעיתים אפילו לאותו יעד מספר פעמים.",
+                type: 'business',
+                explanation: "נכון. זוהי תיירות חוזרת ויציבה לאורך כל השנה."
+            }
+        ];
+
+        let currentQIndex = 0;
+        let score = 0;
+
+        function updateUI() {
+            // Update text
+            document.getElementById('q-number').innerText = currentQIndex + 1;
+            document.getElementById('question-text').innerText = questions[currentQIndex].text;
+            
+            // Update progress bar
+            const percent = ((currentQIndex + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = percent + '%';
+        }
+
+        function handleAnswer(selectedType) {
+            const currentQ = questions[currentQIndex];
+            const isCorrect = currentQ.type === selectedType;
+            
+            // Logic
+            if(isCorrect) {
+                score += 10;
+                document.getElementById('score-display').innerText = score;
+            }
+
+            // Show Feedback UI
+            document.getElementById('question-content').style.display = 'none';
+            const fbSection = document.getElementById('feedback');
+            fbSection.style.display = 'flex';
+            
+            fbSection.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+            document.getElementById('feedback-title').innerText = isCorrect ? 'תשובה נכונה!' : 'לא בדיוק...';
+            document.getElementById('feedback-text').innerText = currentQ.explanation;
+            
+            // Icon toggle
+            const iconSvg = document.getElementById('feedback-icon-svg');
+            if(isCorrect) {
+                iconSvg.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>'; // Check
+            } else {
+                iconSvg.innerHTML = '<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>'; // X
+            }
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            
+            if(currentQIndex < questions.length) {
+                // Reset UI for next question
+                document.getElementById('feedback').style.display = 'none';
+                document.getElementById('question-content').style.display = 'block'; // was flex?
+                // actually question-content contains h3 and grid which are block/grid. Wrapper is block.
+                updateUI();
+            } else {
+                // End Game
+                document.getElementById('game-active').classList.add('hidden');
+                document.getElementById('game-end').classList.remove('hidden');
+                document.getElementById('game-end').classList.add('flex');
+                document.getElementById('final-score').innerText = score;
+            }
+        }
+
+        function restartGame() {
+            currentQIndex = 0;
+            score = 0;
+            document.getElementById('score-display').innerText = '0';
+            
+            document.getElementById('game-end').classList.add('hidden');
+            document.getElementById('game-end').classList.remove('flex');
+            document.getElementById('game-active').classList.remove('hidden');
+            
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('question-content').style.display = 'block';
+            
+            updateUI();
+        }
+
+        // Init
+        navigateTo('home');
+        updateUI();
+
+    </script>
+</body>
+</html>
